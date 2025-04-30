@@ -54,6 +54,7 @@ class _HomePageState extends State<HomePage> {
               weightController.clear();
               heightController.clear();
               _labelIMC = "Informe seus dados!";
+              _formKey.currentState!.reset();
             });
           },
           icon: Icon(Icons.refresh),
