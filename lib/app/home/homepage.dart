@@ -8,28 +8,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String labelIMC = "Informe seus dados!";
-  TextEditingController pesoController = TextEditingController();
-  TextEditingController alturaController = TextEditingController();
-  String? pesoErrorMessage;
-  String? alturaErrorMessage;
+  String _labelIMC = "Informe seus dados!";
+  TextEditingController weightController = TextEditingController();
+  TextEditingController heightController = TextEditingController();
+
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  String? _weightErrorMessage;
+  String? _heightErrorMessage;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildHomeAppBar(),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          spacing: 16,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHomeIcon(),
-            _buildPesoInput(),
-            _buildAlturaInput(),
-            _buildCalculateButton(),
-            _buildBMILabel(),
-          ],
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 32),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            spacing: 32,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHomeIcon(),
+              _buildWeightInput(),
+              _buildHeightInput(),
+              _buildCalculateButton(),
+              _buildBMILabel(),
+            ],
+          ),
         ),
       ),
     );
@@ -44,9 +50,9 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           onPressed: () {
             setState(() {
-              pesoController.clear();
-              alturaController.clear();
-              labelIMC = "Informe seus dados!";
+              weightController.clear();
+              heightController.clear();
+              _labelIMC = "Informe seus dados!";
             });
           },
           icon: Icon(Icons.refresh),
@@ -59,93 +65,88 @@ class _HomePageState extends State<HomePage> {
     return Icon(Icons.person_outlined, size: 128, color: Colors.grey);
   }
 
-  Widget _buildPesoInput() {
-    return TextField(
+  Widget _buildWeightInput() {
+    return TextFormField(
+      validator: (value) {
+        return validateNumericFields(value);
+      },
       decoration: InputDecoration(
         label: Text("Peso (kg)"),
-        errorText: pesoErrorMessage,
+        errorText: _weightErrorMessage,
       ),
-      controller: pesoController,
+      controller: weightController,
       keyboardType: TextInputType.number,
-      onChanged: pesoControllerChanged,
     );
   }
 
-  Widget _buildAlturaInput() {
-    return TextField(
+  Widget _buildHeightInput() {
+    return TextFormField(
+      validator: (value) {
+        return validateNumericFields(value);
+      },
       decoration: InputDecoration(
         label: Text("Altura (cm)"),
-        errorText: alturaErrorMessage,
+        errorText: _heightErrorMessage,
       ),
-      controller: alturaController,
+      controller: heightController,
       keyboardType: TextInputType.number,
-      onChanged: alturaControllerChanged,
     );
   }
 
   Widget _buildCalculateButton() {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          labelIMC = calculateBMI();
-        });
-      },
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
-      child: Text("Calcular", style: TextStyle(color: Colors.grey[900])),
+    return SizedBox(
+      height: 70,
+      child: ElevatedButton(
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            setState(() {
+              _labelIMC = calculateBMI();
+            });
+          }
+        },
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
+        child: Text(
+          "Calcular",
+          style: TextStyle(color: Colors.grey[900], fontSize: 20),
+        ),
+      ),
     );
   }
 
   Widget _buildBMILabel() {
     return Text(
-      labelIMC,
+      _labelIMC,
       style: TextStyle(color: Colors.white, fontSize: 24),
       textAlign: TextAlign.center,
     );
   }
 
-  void pesoControllerChanged(String text) {
-    double? peso = parseTextToDouble(text);
-    if (peso == null || peso.isNaN) {
-      setState(() {
-        pesoErrorMessage = "O peso deve ser numérico";
-      });
+  String? validateNumericFields(String? value) {
+    double? numericValue = parseTextToDouble(value);
+    if (numericValue == null || numericValue.isNaN) {
+      return "O valor deve ser numérico";
     } else {
-      setState(() {
-        pesoErrorMessage = null;
-      });
+      return null;
     }
   }
 
-  void alturaControllerChanged(String text) {
-    double? altura = parseTextToDouble(text);
-    if (altura == null || altura.isNaN) {
-      setState(() {
-        alturaErrorMessage = "O peso deve ser numérico";
-      });
-    } else {
-      setState(() {
-        alturaErrorMessage = null;
-      });
-    }
-  }
-
-  double? parseTextToDouble(String text) {
-    double? parsedDouble = double.tryParse(text.replaceAll(",", "."));
+  double? parseTextToDouble(String? text) {
+    double? parsedDouble = double.tryParse(text!.replaceAll(",", "."));
     return parsedDouble;
   }
 
   String calculateBMI() {
-    double? peso = parseTextToDouble(pesoController.text);
-    double? altura = parseTextToDouble(alturaController.text);
+    double? weight = parseTextToDouble(weightController.text);
+    double? height = parseTextToDouble(heightController.text);
     String msg = "";
 
-    if (peso == null || altura == null || peso.isNaN || altura.isNaN) {
+    if (weight == null || height == null || weight.isNaN || height.isNaN) {
       msg = "Valores inválidos!";
       return msg;
     }
 
-    altura = altura / 100;
-    double imc = peso / (altura * altura);
+    height = height / 100;
+    double imc = weight / (height * height);
 
     switch (imc) {
       case < 18.5:
