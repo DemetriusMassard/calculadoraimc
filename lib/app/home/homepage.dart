@@ -12,7 +12,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController weightController = TextEditingController();
   TextEditingController heightController = TextEditingController();
 
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String? _weightErrorMessage;
   String? _heightErrorMessage;
@@ -42,6 +42,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   AppBar _buildHomeAppBar() {
+    //Builds Homepage's Appbar
     return AppBar(
       backgroundColor: Colors.grey[900],
       title: Text("Calculadora de IMC"),
@@ -62,10 +63,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHomeIcon() {
+    // Builds Homepage icon
     return Icon(Icons.person_outlined, size: 128, color: Colors.grey);
   }
 
   Widget _buildWeightInput() {
+    //Weight Input
     return TextFormField(
       validator: (value) {
         return validateNumericFields(value);
@@ -80,6 +83,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHeightInput() {
+    // Height input
     return TextFormField(
       validator: (value) {
         return validateNumericFields(value);
@@ -94,6 +98,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCalculateButton() {
+    //Calculate Button
     return SizedBox(
       height: 70,
       child: ElevatedButton(
@@ -114,6 +119,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBMILabel() {
+    //Label with result of the calculation
     return Text(
       _labelIMC,
       style: TextStyle(color: Colors.white, fontSize: 24),
@@ -121,21 +127,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  String? validateNumericFields(String? value) {
-    double? numericValue = parseTextToDouble(value);
-    if (numericValue == null || numericValue.isNaN) {
-      return "O valor deve ser numérico";
-    } else {
-      return null;
-    }
-  }
-
-  double? parseTextToDouble(String? text) {
-    double? parsedDouble = double.tryParse(text!.replaceAll(",", "."));
-    return parsedDouble;
-  }
-
   String calculateBMI() {
+    // BMI Calculation
     double? weight = parseTextToDouble(weightController.text);
     double? height = parseTextToDouble(heightController.text);
     String msg = "";
@@ -170,5 +163,21 @@ class _HomePageState extends State<HomePage> {
     }
 
     return msg;
+  }
+
+  String? validateNumericFields(String? value) {
+    //Form's Validator function
+    double? numericValue = parseTextToDouble(value);
+    if (numericValue == null || numericValue.isNaN) {
+      return "O valor deve ser numérico";
+    } else {
+      return null;
+    }
+  }
+
+  double? parseTextToDouble(String? text) {
+    //Parse function, so the user can use ',' an '.' as decimal separator
+    double? parsedDouble = double.tryParse(text!.replaceAll(",", "."));
+    return parsedDouble;
   }
 }
